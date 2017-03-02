@@ -2,6 +2,15 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
+config :solo, Solo.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  database: "solo_dev",
+  username: "solo_dev",
+  password: "solo_dev",
+  hostname: "localhost"
+
+config :solo, ecto_repos: [Solo.Repo]
+
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
 # file won't be loaded nor affect the parent project. For this reason,

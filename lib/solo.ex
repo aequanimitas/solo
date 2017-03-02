@@ -2,6 +2,20 @@ defmodule Solo do
   @moduledoc false
 
   @doc """
+  Start the Ecto process, receives and executes queries
+  """
+  def start(_type, _args) do
+    import Supervisor.Spec, warn: false
+
+    children = [
+      supervisor(Solo.Repo, [])
+    ]
+
+    opts = [strategy: :one_for_one, name: Solo.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
+
+  @doc """
   Initialize processes here, called only once to avoid spawning new processes
   """
   def main(_args \\ []) do
@@ -26,13 +40,22 @@ defmodule Solo do
   def wait_input(pid) do
     receive do
       {:input, input} ->
-        IO.write "(#{format_date_today(:calendar.local_time())}) Message received: #{input}"
+        input_data = %Solo.Dump{dump: input, time_added: NaiveDateTime.from_erl!(today())}
+        case Solo.Repo.insert(input_data) do
+          {:ok, _} ->
+          IO.write "(#{format_date_today()}) Message received: #{input}"
+        end
         do_loop(pid)
     end
   end
 
-  defp format_date_today(_dte={{year,month,day}, {hour,minute,second}}) do
-    "#{year}/#{month}/#{day} #{hour}:#{minute}:#{second}"
+  defp today do
+    :calendar.local_time()
+  end
+
+  defp format_date_today do
+  {{year,month,day}, {hour,minute,second}} = today()
+  "#{year}/#{month}/#{day} #{hour}:#{minute}:#{second}"
   end
 
   @doc """
