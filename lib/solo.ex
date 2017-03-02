@@ -1,4 +1,7 @@
 defmodule Solo do
+
+  alias IO.ANSI
+
   @moduledoc false
 
   @doc """
@@ -40,10 +43,11 @@ defmodule Solo do
   def wait_input(pid) do
     receive do
       {:input, input} ->
-        input_data = %Solo.Dump{dump: input, time_added: NaiveDateTime.from_erl!(today())}
+        data = %{dump: input, time_added: NaiveDateTime.from_erl!(:calendar.local_time())}
+        input_data = struct(Solo.Dump, data)
         case Solo.Repo.insert(input_data) do
           {:ok, _} ->
-          IO.write "(#{format_date_today()}) Message received: #{input}"
+            IO.write "(#{today()}) Message received: #{input}"
         end
         do_loop(pid)
     end
@@ -51,11 +55,18 @@ defmodule Solo do
 
   defp today do
     :calendar.local_time()
+    |> format_date_today
+    |> add_color
   end
 
-  defp format_date_today do
-  {{year,month,day}, {hour,minute,second}} = today()
+  defp format_date_today(dte) do
+  {{year,month,day}, {hour,minute,second}} = dte
   "#{year}/#{month}/#{day} #{hour}:#{minute}:#{second}"
+  end
+
+
+  defp add_color(str) do
+    ANSI.color(2) <> str <> "\e[39m"
   end
 
   @doc """
