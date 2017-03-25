@@ -60,10 +60,9 @@ defmodule Solo do
   end
 
   defp format_date_today(dte) do
-  {{year,month,day}, {hour,minute,second}} = dte
-  "#{year}/#{month}/#{day} #{hour}:#{minute}:#{second}"
+    {{year,month,day}, {hour,minute,second}} = dte
+    "#{year}/#{month}/#{day} #{hour}:#{minute}:#{second}"
   end
-
 
   defp add_color(str) do
     ANSI.color(2) <> str <> "\e[39m"
@@ -72,7 +71,7 @@ defmodule Solo do
   @doc """
   Loop forever until eof
   """
-  def input_loop(pid) do
+  def input_loop(pid, data \\ "") do
     receive do
       {:do_input} ->
         input = case IO.gets(:stdio, "Waiting for braindump: ") do
